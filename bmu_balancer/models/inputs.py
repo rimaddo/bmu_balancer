@@ -58,9 +58,26 @@ class BMU:
 @dataclass(frozen=True)
 class Offer:
     bmu: BMU
-    offer_start: datetime
-    offer_end: datetime
+    start: datetime
+    end: datetime
     price_mw_hr: float
-    boa_start: Optional[datetime] = None
-    boa_end: Optional[datetime] = None
-    boa_value: Optional[int] = None
+
+
+@dataclass(frozen=True)
+class BOA:
+    start: datetime
+    end: datetime
+    mw: int
+    offer: Offer
+
+    @property
+    def price_mw_hr(self) -> float:
+        return self.offer.price_mw_hr
+
+    @property
+    def assets(self) -> Collection[Asset]:
+        return self.offer.bmu.assets
+
+    @property
+    def is_import(self) -> bool:
+        return self.mw < 0
