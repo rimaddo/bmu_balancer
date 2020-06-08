@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Collection, Optional
+from typing import List, Optional
 
 
 @dataclass(frozen=True)
@@ -8,39 +8,46 @@ class Asset:
     """An asset is any item that has the ability
     to import or export power to the grid."""
     id: int
-    slug: Optional[str]
+    name: Optional[str]
     capacity: float
     # Costs
     running_cost_per_mw_hr: float
-    min_required_profit: float = 0
+    min_required_profit: float
     # Constraints
-    max_import_mw_hr: float = 0
-    max_export_mw_hr: float = 0
-    min_zero_time: float = 0
-    min_non_zero_time: float = 0
-    notice_to_deviate_from_zero: float = 0
-    max_delivery_period: Optional[float] = None
+    max_import_mw_hr: float
+    max_export_mw_hr: float
+    single_import_mw_hr: Optional[float]
+    single_export_mw_hr: Optional[float]
+    min_zero_time: float
+    min_non_zero_time: float
+    notice_to_deviate_from_zero: float
+    notice_to_deliver_bid: float
+    max_delivery_period: Optional[float]
 
     def __repr__(self) -> str:
-        return f"Asset({self.slug or self.id})"
+        return f"Asset({self.name or self.id})"
 
 
 @dataclass(frozen=True)
 class Rate:
+    id: int
     asset: Asset
     ramp_up_import: float
     ramp_up_export: float
     ramp_down_import: float
     ramp_down_export: float
-    min_mw: int = 0
-    max_mw: Optional[int] = None
+    min_mw: int
+    max_mw: Optional[int]
 
 
 @dataclass(frozen=True)
 class AssetState:
+    id: int
     asset: Asset
+    start: datetime
+    end: datetime
     charge: int
-    time: datetime
+    available: bool
 
 
 @dataclass(frozen=True)
@@ -48,8 +55,8 @@ class BMU:
     """A BM Unit is a collection of assets which respond together
     from national grids perspective to deliver a request."""
     id: int
-    assets: Collection[Asset]
-    name: Optional[str] = None
+    name: Optional[str]
+    assets: List[Asset]
 
     def __repr__(self) -> str:
         return f"BMU({self.name or self.id})"
@@ -57,14 +64,16 @@ class BMU:
 
 @dataclass(frozen=True)
 class Offer:
+    id: int
     bmu: BMU
-    start: datetime
-    end: datetime
+    start: Optional[datetime]
+    end: Optional[datetime]
     price_mw_hr: float
 
 
 @dataclass(frozen=True)
 class BOA:
+    id: int
     start: datetime
     end: datetime
     mw: int
@@ -75,7 +84,7 @@ class BOA:
         return self.offer.price_mw_hr
 
     @property
-    def assets(self) -> Collection[Asset]:
+    def assets(self) -> List[Asset]:
         return self.offer.bmu.assets
 
     @property

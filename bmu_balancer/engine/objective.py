@@ -1,8 +1,8 @@
 from pulp import LpProblem
 
 from bmu_balancer.models.engine import Variables, InstructionCandidate
-from bmu_balancer.models.inputs import Offer, BOA, Rate
-from bmu_balancer.utils import KeyStore, get_item_at_time
+from bmu_balancer.models.inputs import BOA, Rate
+from bmu_balancer.operations.key_store import KeyStore
 
 PRICE_GROUP_SCALER = 10
 RAMP_RATE_SCALER = 10

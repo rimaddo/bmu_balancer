@@ -6,7 +6,7 @@ import pytest
 from bmu_balancer.engine.main import run_engine
 from bmu_balancer.models.engine import InstructionCandidate
 from bmu_balancer.models.inputs import Asset
-from bmu_balancer.utils import KeyStore
+from bmu_balancer.operations.key_store import KeyStore
 from tests.factories import AssetFactory, BOAFactory, RateFactory
 
 UNDER_MIN_REQUIRED_PROFIT = [
@@ -17,7 +17,7 @@ UNDER_MIN_REQUIRED_PROFIT = [
     #        10             * 3     >= 10
     #  fails.
     AssetFactory(
-        slug="one",
+        name="one",
         min_required_profit=100,
     )
 ]
@@ -30,7 +30,7 @@ OVER_MIN_REQUIRED_PROFIT = [
     #      10              *  3     >= 1
     #  passes.
     AssetFactory(
-        slug="one",
+        name="one",
         min_required_profit=10,
     )
 ]
@@ -39,12 +39,12 @@ MINIMISE_COST_PER_MW = [
     # Check that when given two assets it will choose the one with the
     # lower running cost.
     AssetFactory(
-        slug="one",
+        name="one",
         min_required_profit=1,
         running_cost_per_mw_hr=1,
     ),
     AssetFactory(
-        slug="two",
+        name="two",
         min_required_profit=2,
         running_cost_per_mw_hr=2,
     )
@@ -54,11 +54,11 @@ RAMP_RATE_UP_ASSETS = [
     # Check that when given two assets it will choose the one with the
     # faster ramp rate up
     AssetFactory(
-        slug="one",
+        name="one",
         min_required_profit=1,
     ),
     AssetFactory(
-        slug="two",
+        name="two",
         min_required_profit=1,
     )
 ]
@@ -71,11 +71,11 @@ RAMP_RATE_DOWN_ASSETS = [
     # Check that when given two assets it will choose the one with the
     # faster ramp rate down
     AssetFactory(
-        slug="one",
+        name="one",
         min_required_profit=1,
     ),
     AssetFactory(
-        slug="two",
+        name="two",
         min_required_profit=1,
     )
 ]
@@ -89,12 +89,12 @@ VARIABLE_BOUNDS = [
     # it will only be given to it's limit even if it
     # is the best choice
     AssetFactory(
-        slug="one",
+        name="one",
         min_required_profit=1,
         capacity=4,
     ),
     AssetFactory(
-        slug="two",
+        name="two",
         min_required_profit=1,
         capacity=6,
     )
@@ -105,12 +105,12 @@ MAXIMISE_FULFILLMENT = [
     # Check that when there is insufficient capacity the
     # power delivered is maximised.
     AssetFactory(
-        slug="one",
+        name="one",
         min_required_profit=1,
         capacity=2,
     ),
     AssetFactory(
-        slug="two",
+        name="two",
         min_required_profit=1,
         capacity=3,
     )
@@ -118,7 +118,7 @@ MAXIMISE_FULFILLMENT = [
 
 
 @pytest.mark.parametrize(
-    "assets, ramp_rates, slug_mw",
+    "assets, ramp_rates, asset_mw",
     [
         # Constraints
         # Necessary profit, fails
@@ -140,7 +140,7 @@ MAXIMISE_FULFILLMENT = [
         (MAXIMISE_FULFILLMENT, {}, {"one": 2, "two": 3}),
     ]
 )
-def test_run_engine(assets: Tuple[Asset], ramp_rates: Dict, slug_mw: Dict[str, int]) -> None:
+def test_run_engine(assets: Tuple[Asset], ramp_rates: Dict, asset_mw: Dict[str, int]) -> None:
 
     boa = BOAFactory(
         mw=10,
@@ -160,7 +160,7 @@ def test_run_engine(assets: Tuple[Asset], ramp_rates: Dict, slug_mw: Dict[str, i
     rates = KeyStore(
         ['asset'],
         [
-            RateFactory(asset=asset, **ramp_rates.get(asset.slug, {}))
+            RateFactory(asset=asset, **ramp_rates.get(asset.name, {}))
             for asset in assets
         ]
     )
@@ -174,4 +174,4 @@ def test_run_engine(assets: Tuple[Asset], ramp_rates: Dict, slug_mw: Dict[str, i
     print("\n\nstatus: ", solution.status)
     print("objective: ", solution.objective)
     for instruction in solution.instructions:
-        assert slug_mw[instruction.asset.slug] == instruction.mw
+        assert asset_mw[instruction.asset.name] == instruction.mw

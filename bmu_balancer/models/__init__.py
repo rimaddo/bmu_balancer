@@ -6,7 +6,7 @@ from bmu_balancer.models.outputs import Instruction
 
 
 @dataclass(frozen=True)
-class Data:
+class InputData:
     assets: List[Asset]
     rates: List[Rate]
     states: List[AssetState]
@@ -14,3 +14,6 @@ class Data:
     offers: List[Offer]
     instructions: List[Instruction]
     boa: BOA  # A solve is run for a single BOA initially
+
+    def __repr__(self) -> str:
+        return "InputData"

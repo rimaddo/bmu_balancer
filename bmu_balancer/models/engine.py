@@ -14,10 +14,9 @@ SEC_IN_HOUR = 3600
 class InstructionCandidate:
     asset: Asset
     boa: BOA
+    mw: int
     adjusted_start: Optional[datetime] = None
     adjusted_end: Optional[datetime] = None
-    min_mw: Optional[float] = None
-    max_mw: Optional[float] = None
 
     @property
     def start(self) -> datetime:

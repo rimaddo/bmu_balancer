@@ -1,0 +1,73 @@
+{
+  "assets": [
+    {
+      "id": 1,
+      "name": "Asset One",
+      "capacity":  100,
+      "running_cost_per_mw_hr": 1,
+      "min_required_profit":  1,
+      "max_import_mw_hr": 1,
+      "max_export_mw_hr":  1,
+      "single_import_mw_hr": 1,
+      "single_export_mw_hr":  1,
+      "min_zero_time": 1,
+      "min_non_zero_time":  1,
+      "notice_to_deviate_from_zero": 1,
+      "max_delivery_period":  1
+    }
+  ],
+  "rates": [
+    {
+      "id": 1,
+      "asset": 1,
+      "ramp_up_import": 1,
+      "ramp_up_export": 1,
+      "ramp_down_import": 1,
+      "ramp_down_export": 1,
+      "min_mw": 0,
+      "max_mw": null
+    }
+  ],
+  "states":  [
+    {
+      "id": 1,
+      "asset": 1,
+      "start": "2000-01-01 01:00+00:00",
+      "end": "2000-01-01 01:20+00:00",
+      "charge": 0.5,
+      "available": true
+    }
+  ],
+  "bmus": [
+    {
+      "id": 1,
+      "name": "BMU One",
+      "assets": [1]
+    }
+  ],
+  "offers":  [
+    {
+      "id": 1,
+      "bmu": 1,
+      "start": null,
+      "end": null,
+      "price_mw_hr": 1
+    }
+  ],
+  "instructions": [
+    {
+      "id": 1,
+      "asset": 1,
+      "mw": 10,
+      "start": "2000-01-01 08:00+00:00",
+      "end": "2000-01-01 08:30+00:00"
+    }
+  ],
+  "boa":  {
+    "id": 1,
+    "start": "2000-01-01 01:00+00:00",
+    "end": "2000-01-01 01:30+00:00",
+    "mw": 50,
+    "offer": 1
+  }
+}

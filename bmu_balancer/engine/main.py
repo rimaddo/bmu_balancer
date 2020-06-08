@@ -10,7 +10,7 @@ from bmu_balancer.engine.solution import get_solution
 from bmu_balancer.engine.variables import create_variables
 from bmu_balancer.models.engine import InstructionCandidate, Solution
 from bmu_balancer.models.inputs import BOA, Rate
-from bmu_balancer.utils import KeyStore
+from bmu_balancer.operations.key_store import KeyStore
 
 log = logging.getLogger(__name__)
 

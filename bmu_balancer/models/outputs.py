@@ -11,4 +11,8 @@ class Instruction:
     mw: int
     start: datetime
     end: datetime
+    id: Optional[int] = None
     boa: Optional[BOA] = None
+
+    def __repr__(self) -> str:
+        return f"Instruction({self.asset}: {self.start} till {self.end} at {self.mw})"

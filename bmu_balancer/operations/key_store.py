@@ -1,15 +1,16 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Generic, List, Optional, TypeVar
+from functools import lru_cache
+from typing import Any, Callable, Dict, Generic, List, Protocol, Tuple, Type, TypeVar, Union
 
 T = TypeVar('T')
 
 
 @dataclass(frozen=True)
 class KeyStore(Generic[T]):
-    keys: List[str]
+    keys: Union[Tuple[str], List[str]]
     objects: List[T]
+    dict: bool = False
 
     cache = defaultdict(list)
 
@@ -32,48 +33,28 @@ class KeyStore(Generic[T]):
         if key not in self.cache:
             for obj in self.objects:
                 if all(
-                    getattr(obj, attr) == val
-                    for attr, val in kwargs.items()
+                        self._equal(obj=obj, attr=attr, val=val)
+                        for attr, val in kwargs.items()
                 ):
                     self.cache[key].append(obj)
 
         return self.cache.get(key, [])
 
+    def _equal(self, obj: Union[object, Dict], attr: str, val: Any) -> bool:
+        if self.dict:
+            return obj.get(attr)
+        return getattr(obj, attr) == val
+
     def __getitem__(self, key: int) -> T:
         return self.objects[key]
 
 
-def get_item_at_time(
-        items: KeyStore,
-        time: datetime,
-        nullable: bool = False,
-        **kwargs
-) -> Optional:
-    items_at_time = [
-        item
-        for item in items.get(**kwargs)
-        if item.start <= time <= item.end
-    ]
-
-    if len(items_at_time) == 0 and nullable:
-        return None
-
-    elif len(items_at_time) != 1:
-        raise RuntimeError(
-            f"Only expected one item for {kwargs} at {time} got {items_at_time}"
-        )
-
-    return items_at_time[0]
+class Dataclass(Protocol):
+    """Type hint used to identify if something is a dataclass"""
+    __dataclass_fields__: Dict
 
 
-def get_items_for_period(
-        items: KeyStore,
-        start: datetime,
-        end: datetime,
-        **kwargs
-) -> List:
-    return [
-        item
-        for item in items.get(**kwargs)
-        if item.start >= start and item.end <= end
-    ]
+@lru_cache
+def get_keys(obj: Type[T]) -> Tuple[str]:
+    """Default function to get keys off a dataclass for KeyStore input."""
+    return tuple(obj.__annotations__.keys())
