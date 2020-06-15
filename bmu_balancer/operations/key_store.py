@@ -1,7 +1,7 @@
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field, fields
 from functools import lru_cache
-from typing import Any, Callable, Dict, Generic, List, Protocol, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, Generic, List, Protocol, Set, Tuple, Type, TypeVar, Union
 
 T = TypeVar('T')
 
@@ -9,10 +9,10 @@ T = TypeVar('T')
 @dataclass(frozen=True)
 class KeyStore(Generic[T]):
     keys: Union[Tuple[str], List[str]]
-    objects: List[T]
+    objects: Union[List[T], Set[T]]
     dict: bool = False
 
-    cache = defaultdict(list)
+    _cache: Dict = field(default_factory=lambda: defaultdict(list))
 
     def get(self, **kwargs) -> List[T]:
         return self._get_values(**kwargs)
@@ -30,15 +30,15 @@ class KeyStore(Generic[T]):
         attr_dict.update(**kwargs)
         key = tuple(attr_dict.values())
 
-        if key not in self.cache:
+        if key not in self._cache:
             for obj in self.objects:
                 if all(
                         self._equal(obj=obj, attr=attr, val=val)
                         for attr, val in kwargs.items()
                 ):
-                    self.cache[key].append(obj)
+                    self._cache[key].append(obj)
 
-        return self.cache.get(key, [])
+        return self._cache.get(key, [])
 
     def _equal(self, obj: Union[object, Dict], attr: str, val: Any) -> bool:
         if self.dict:

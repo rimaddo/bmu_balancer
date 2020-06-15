@@ -56,4 +56,5 @@ def asset_can_be_assigned_to_boa(
         return False
 
     # If everything passes and the function has got to this stage, then return True.
+    log.info(f"Asset {asset} can be assigned to BOA {boa}.")
     return True

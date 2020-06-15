@@ -1,8 +1,11 @@
-from ortools.linear_solver.pywraplp import Solver
-from pulp import LpProblem, value, LpStatus
+import logging
+
+from pulp import LpProblem, LpStatus, value
 
 from bmu_balancer.models.engine import Solution, Variables
 from bmu_balancer.models.outputs import Instruction
+
+log = logging.getLogger(__name__)
 
 
 def get_solution(model: LpProblem, variables: Variables) -> Solution:
@@ -12,14 +15,16 @@ def get_solution(model: LpProblem, variables: Variables) -> Solution:
         objective = value(model.objective)
 
         instructions = []
-        for ic, var in variables.instruction_candidates.items():
-            instructions.append(Instruction(
-                asset=ic.asset,
-                boa=ic.boa,
-                mw=var.varValue,
-                start=ic.start,
-                end=ic.end,
-            ))
+        for candidate, var in variables.candidates.items():
+            if var.varValue > 0:
+                instructions.append(Instruction(
+                    asset=candidate.asset,
+                    boa=candidate.boa,
+                    mw=candidate.mw,
+                    start=candidate.start,
+                    end=candidate.end,
+                ))
+        log.info(f"Got {len(instructions)} instructions choices.")
 
         return Solution(
             status=status,

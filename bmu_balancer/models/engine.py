@@ -1,17 +1,16 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Dict, List
+from typing import Dict, List, Optional
 
 from pulp import LpVariable
 
-from bmu_balancer.models.inputs import Asset, Offer, BOA
+from bmu_balancer.models.inputs import Asset, BOA
 from bmu_balancer.models.outputs import Instruction
-
-SEC_IN_HOUR = 3600
+from bmu_balancer.operations.utils import SEC_IN_HOUR
 
 
 @dataclass(frozen=True)
-class InstructionCandidate:
+class Candidate:
     asset: Asset
     boa: BOA
     mw: int
@@ -30,18 +29,22 @@ class InstructionCandidate:
     def hours(self) -> float:
         return (self.end - self.start).seconds / SEC_IN_HOUR
 
+    @property
+    def is_import(self) -> bool:
+        return self.boa.is_import
+
 
 @dataclass(frozen=True)
 class Variables:
-    instruction_candidates: Dict[InstructionCandidate, LpVariable]
+    candidates: Dict[Candidate, LpVariable]
 
     @property
     def count(self) -> int:
-        return len(self.instruction_candidates)
+        return len(self.candidates)
 
 
 @dataclass(frozen=True)
 class Solution:
     status: str
     objective: Optional[int] = None
-    instructions: Optional[List[Instruction]] = None
+    instructions: Optional[List[Instruction]] = ()

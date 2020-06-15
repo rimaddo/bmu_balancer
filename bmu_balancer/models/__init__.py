@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from typing import List
 
-from bmu_balancer.models.inputs import Offer, BOA, BMU, AssetState, Rate, Asset
+from bmu_balancer.models.inputs import Offer, BOA, BMU, AssetState, Parameters, Rate, Asset
 from bmu_balancer.models.outputs import Instruction
 
 
 @dataclass(frozen=True)
 class InputData:
+    parameters: Parameters
     assets: List[Asset]
     rates: List[Rate]
     states: List[AssetState]

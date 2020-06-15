@@ -1,4 +1,5 @@
 import logging
+import sys
 from time import time
 from typing import List
 
@@ -8,17 +9,18 @@ from bmu_balancer.engine.constraints import add_constraints
 from bmu_balancer.engine.objective import set_objective
 from bmu_balancer.engine.solution import get_solution
 from bmu_balancer.engine.variables import create_variables
-from bmu_balancer.models.engine import InstructionCandidate, Solution
-from bmu_balancer.models.inputs import BOA, Rate
+from bmu_balancer.models import BOA, Rate
+from bmu_balancer.models.engine import Candidate, Solution
 from bmu_balancer.operations.key_store import KeyStore
 
 log = logging.getLogger(__name__)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def run_engine(
         boa: BOA,
         rates: KeyStore[Rate],
-        instruction_candidates: List[InstructionCandidate],
+        candidates: List[Candidate],
 ) -> Solution:
     start = time()
 
@@ -26,7 +28,7 @@ def run_engine(
     model = LpProblem("BMU-Balancer", LpMaximize)
 
     variables = create_variables(
-        instruction_candidates=instruction_candidates,
+        candidates=candidates,
     )
     set_objective(
         model=model,
@@ -42,7 +44,7 @@ def run_engine(
 
     # Solve
     model.solve()
-    print(f"Finished solving, got status {LpStatus[model.status]}. TOOK: {round(time() - start, 2)}secs.")
+    log.info(f"Finished solving, got status {LpStatus[model.status]}. TOOK: {round(time() - start, 4)} secs.")
 
     # Get solution
     return get_solution(

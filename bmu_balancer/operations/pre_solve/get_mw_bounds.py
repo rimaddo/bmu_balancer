@@ -1,7 +1,10 @@
+import logging
 from datetime import datetime
 from typing import List, Optional
 
 from bmu_balancer.models import Asset, BOA
+
+log = logging.getLogger(__name__)
 
 SECS_IN_HR = 60.0 * 60.0
 MW_INCREMENT = 10
@@ -21,7 +24,7 @@ def get_mw_options(
     # i.e. assign zero import / export or to give it
     # it'se set power level.
     if asset.single_import_mw_hr and boa.is_import:
-        return [0, asset.single_import_mw_hr]
+        return [0, -asset.single_import_mw_hr]
 
     elif asset.single_export_mw_hr and not boa.is_import:
         return [0, asset.single_export_mw_hr]
@@ -38,7 +41,10 @@ def get_mw_options(
     min_bound = mw_bound if mw_bound < 0 else 0
     max_bound = mw_bound if mw_bound > 0 else 0
 
-    return list(range(min_bound, max_bound + increment, increment))
+    options = list(range(min_bound, max_bound + increment, increment))
+
+    log.info(f"Got {len(options)} mw options.")
+    return options
 
 
 def get_mw_bound(
@@ -56,7 +62,10 @@ def get_mw_bound(
     delivery_volume = delivery_duration_hrs * boa.mw
     if abs(delivery_volume) > asset.capacity:
         multiplier = -1 if boa.is_import else 1
-        return int(asset.capacity / delivery_duration_hrs * multiplier)
+        adjusted_volume = int(asset.capacity / delivery_duration_hrs * multiplier)
+
+        log.info(f"Adjusting volume to {adjusted_volume} due to exceeding capacity of {asset.capacity}.")
+        return adjusted_volume
 
     # Based off mw_hr rate
     if boa.is_import:

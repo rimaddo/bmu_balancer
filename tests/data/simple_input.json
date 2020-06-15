@@ -20,10 +20,10 @@
     {
       "id": 1,
       "asset": 1,
-      "ramp_up_import": 1,
-      "ramp_up_export": 1,
-      "ramp_down_import": 1,
-      "ramp_down_export": 1,
+      "ramp_up_import": 10,
+      "ramp_up_export": 10,
+      "ramp_down_import": 10,
+      "ramp_down_export": 10,
       "min_mw": 0,
       "max_mw": null
     }
@@ -32,8 +32,8 @@
     {
       "id": 1,
       "asset": 1,
-      "start": "2000-01-01 01:00+00:00",
-      "end": "2000-01-01 01:20+00:00",
+      "start": "2000-01-01T01:00:00Z",
+      "end": "2000-01-01T01:20:00Z",
       "charge": 0.5,
       "available": true
     }
@@ -51,7 +51,7 @@
       "bmu": 1,
       "start": null,
       "end": null,
-      "price_mw_hr": 1
+      "price_mw_hr": 100
     }
   ],
   "instructions": [
@@ -59,15 +59,18 @@
       "id": 1,
       "asset": 1,
       "mw": 10,
-      "start": "2000-01-01 08:00+00:00",
-      "end": "2000-01-01 08:30+00:00"
+      "start": "2000-01-01T08:00:00Z",
+      "end": "2000-01-01T08:30:00Z"
     }
   ],
   "boa":  {
     "id": 1,
-    "start": "2000-01-01 01:00+00:00",
-    "end": "2000-01-01 01:30+00:00",
+    "start": "2000-01-01T01:00:00Z",
+    "end": "2000-01-01T01:30:00Z",
     "mw": 50,
     "offer": 1
+  },
+  "parameters": {
+    "execution_time": "2000-01-01T00:00:00Z"
   }
 }

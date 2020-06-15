@@ -1,9 +1,18 @@
 # Todo: Could this all be auto-generated off a dataclass?? Would be fun.
+from datetime import datetime
 
-from marshmallow import Schema, fields
+from marshmallow import fields, post_load
 
 from bmu_balancer.io.utils import PostLoadObjMixin
 from bmu_balancer.models import Asset, AssetState, BMU, BOA, InputData, Instruction, Offer, Rate
+from bmu_balancer.models.inputs import Parameters
+
+
+class ParametersSchema(PostLoadObjMixin):
+
+    __model__ = Parameters
+
+    execution_time = fields.AwareDateTime(missing=datetime.utcnow())
 
 
 class AssetSchema(PostLoadObjMixin):
@@ -22,7 +31,7 @@ class AssetSchema(PostLoadObjMixin):
     min_zero_time = fields.Float(missing=0)
     min_non_zero_time = fields.Float(missing=0)
     notice_to_deviate_from_zero = fields.Float(missing=0)
-    notice_to_deliver_bid = fields.Float(missing=0)
+    notice_to_deliver_bid = fields.Float(missing=0, nullable=False)
     max_delivery_period = fields.Float(missing=None)
 
 
@@ -59,6 +68,11 @@ class BMUSchema(PostLoadObjMixin):
     id = fields.Integer(required=True)
     name = fields.String(missing=None)
     assets = fields.List(fields.Function(deserialize=lambda data, context: context['assets'][data]))
+
+    @post_load
+    def list_to_tuple_for_immutability(self, data, **kwargs):
+        data['assets'] = tuple(data.get('assets', []))
+        return data
 
 
 class OfferSchema(PostLoadObjMixin):
@@ -99,6 +113,7 @@ class InputDataSchema(PostLoadObjMixin):
 
     __model__ = InputData
 
+    parameters = fields.Nested(ParametersSchema)
     assets = fields.List(fields.Function(deserialize=lambda data, context: context['assets'][data['id']]))
     rates = fields.List(fields.Function(deserialize=lambda data, context: context['rates'][data['id']]))
     states = fields.List(fields.Function(deserialize=lambda data, context: context['states'][data['id']]))

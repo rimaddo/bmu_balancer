@@ -4,6 +4,7 @@ from typing import List, Optional
 from bmu_balancer.operations.key_store import KeyStore
 
 SEC_IN_MIN = 60.0
+SEC_IN_HOUR = 3600.0
 
 
 def get_item_at_time(

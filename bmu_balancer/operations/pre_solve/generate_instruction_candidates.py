@@ -1,6 +1,10 @@
+import logging
+import sys
+from datetime import datetime
+from time import time
 from typing import List
 
-from bmu_balancer.models.engine import InstructionCandidate
+from bmu_balancer.models.engine import Candidate
 from bmu_balancer.models.inputs import AssetState, BOA
 from bmu_balancer.models.outputs import Instruction
 from bmu_balancer.operations.instruction_helpers import get_prior_instruction
@@ -12,14 +16,21 @@ from bmu_balancer.operations.pre_solve.get_adjusted_times import get_adjusted_en
 from bmu_balancer.operations.pre_solve.get_mw_bounds import get_mw_options
 from bmu_balancer.operations.utils import get_item_at_time
 
+log = logging.getLogger(__name__)
+
+NOW = datetime.utcnow()
+
 
 def generate_instruction_candidates(
         boa: BOA,
         states: KeyStore[AssetState],
         instructions: KeyStore[Instruction],
-) -> List[InstructionCandidate]:
+        execution_time: datetime = NOW,
+) -> List[Candidate]:
     """Generate a set of valid instruction candidate
     variables given a boa and the asset states."""
+    log.info("Generating instruction candidates...")
+    start = time()
 
     candidates = []
     for asset in boa.assets:
@@ -30,6 +41,7 @@ def generate_instruction_candidates(
             items=instructions,
             asset=asset,
             time=boa.start,
+            nullable=True,
         )
         prior_instruction = get_prior_instruction(
             asset=asset,
@@ -37,13 +49,14 @@ def generate_instruction_candidates(
             time=boa.start,
         )
 
-        if asset_can_be_assigned_to_boa(
+        valid = asset_can_be_assigned_to_boa(
             asset=asset,
             boa=boa,
             states=states,
             current_instruction=current_instruction,
             prior_instruction=prior_instruction,
-        ):
+        )
+        if valid:
             # Given a valid asset that can be assigned to the boa
             # for a non-zero time.
 
@@ -52,6 +65,7 @@ def generate_instruction_candidates(
                 asset=asset,
                 boa=boa,
                 current_instruction=current_instruction,
+                execution_time=execution_time,
             )
             adjusted_end = get_adjusted_end(
                 asset=asset,
@@ -63,18 +77,24 @@ def generate_instruction_candidates(
             mw_options = get_mw_options(
                 asset=asset,
                 boa=boa,
-                states=states,
-                current_instruction=current_instruction,
+                adjusted_start=adjusted_start,
+                adjusted_end=adjusted_end,
             )
-            for mw in mw_options:
-                # Add new candidate
-                candidates.append(
-                    InstructionCandidate(
-                        asset=asset,
-                        boa=boa,
-                        adjusted_start=adjusted_start,
-                        adjusted_end=adjusted_end,
-                        mw=mw,
-                    )
+
+            asset_candidates = [
+                Candidate(
+                    asset=asset,
+                    boa=boa,
+                    adjusted_start=adjusted_start,
+                    adjusted_end=adjusted_end,
+                    mw=mw,
                 )
+                for mw in mw_options
+                if abs(mw) <= asset.capacity
+            ]
+            log.info(f"Added {len(asset_candidates)} candidates for {asset}.")
+
+            candidates.extend(asset_candidates)
+
+    log.info(f"Finished generating candidates, got {len(candidates)}. Took: {round(time() - start, 4)} secs")
     return candidates

@@ -28,7 +28,7 @@ def boa(asset: AssetFactory) -> BOAFactory:
         offer__bmu__assets={asset},
         start=datetime(2000, 1, 1, 10),
         end=datetime(2000, 1, 1, 10, 30),
-        mw=1000,
+        mw=500,
     )
 
 

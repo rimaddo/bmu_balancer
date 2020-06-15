@@ -1,6 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
+
+
+@dataclass(frozen=True)
+class Parameters:
+    execution_time: datetime
 
 
 @dataclass(frozen=True)
@@ -56,7 +61,7 @@ class BMU:
     from national grids perspective to deliver a request."""
     id: int
     name: Optional[str]
-    assets: List[Asset]
+    assets: Tuple[Asset]
 
     def __repr__(self) -> str:
         return f"BMU({self.name or self.id})"
@@ -84,7 +89,7 @@ class BOA:
         return self.offer.price_mw_hr
 
     @property
-    def assets(self) -> List[Asset]:
+    def assets(self) -> Tuple[Asset]:
         return self.offer.bmu.assets
 
     @property
