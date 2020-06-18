@@ -4,7 +4,7 @@ from typing import Optional, Dict, List
 
 from pulp import LpVariable
 
-from bmu_balancer.models.inputs import Asset, Offer
+from bmu_balancer.models.inputs import Asset, Offer, BOA
 from bmu_balancer.models.outputs import Instruction
 
 SEC_IN_HOUR = 3600
@@ -13,7 +13,7 @@ SEC_IN_HOUR = 3600
 @dataclass(frozen=True)
 class InstructionCandidate:
     asset: Asset
-    offer: Offer
+    boa: BOA
     adjusted_start: Optional[datetime] = None
     adjusted_end: Optional[datetime] = None
     min_mw: Optional[float] = None
@@ -21,11 +21,11 @@ class InstructionCandidate:
 
     @property
     def start(self) -> datetime:
-        return self.adjusted_start or self.start
+        return self.adjusted_start or self.boa.start
 
     @property
     def end(self) -> datetime:
-        return self.adjusted_end or self.end
+        return self.adjusted_end or self.boa.end
 
     @property
     def hours(self) -> float:

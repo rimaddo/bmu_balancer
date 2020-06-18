@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
-from bmu_balancer.models.inputs import Asset, Offer
+from bmu_balancer.models.inputs import Asset, BOA
 
 
 @dataclass(frozen=True)
@@ -11,4 +11,4 @@ class Instruction:
     mw: int
     start: datetime
     end: datetime
-    boa: Optional[Offer] = None
+    boa: Optional[BOA] = None
