@@ -4,13 +4,13 @@ Basic LP that assigns power to assets.
 
 
 ## To Run
-1. Create a virtualenv (python 3.7 or higher)
+1. Create a virtualenv with python 3.8
 2. Install requirements `pip install -r requirements.txt`
 3. Run `python run.py <INPUT_FILE>`, some example files can be found in tests/data/.
 
 
 ## To Test
-1. Create a virtualenv (python 3.7 or higher)
+1. Create a virtualenv with python 3.8
 2. Install requirements `pip install -r requirements_test.txt`
 3. Run `pytest`
 
