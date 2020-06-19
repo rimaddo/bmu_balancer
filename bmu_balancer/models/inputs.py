@@ -75,6 +75,9 @@ class Offer:
     end: Optional[datetime]
     price_mw_hr: float
 
+    def __repr__(self) -> str:
+        return f"Offer(start: {self.start.isoformat()}, end: {self.end.isoformat()}, price: {self.price_mw_hr})"
+
 
 @dataclass(frozen=True)
 class BOA:
@@ -95,3 +98,6 @@ class BOA:
     @property
     def is_import(self) -> bool:
         return self.mw < 0
+
+    def __repr__(self) -> str:
+        return f"BOA(start: {self.start.isoformat()}, end: {self.end.isoformat()}, mw: {self.mw}, price: {self.offer.price_mw_hr})"

@@ -13,5 +13,11 @@ def test_balance_a_bmu() -> None:
     solution = balance_a_bmu(input_filepath=SIMPLE_INPUT_FILEPATH)
 
     assert solution.status == "Optimal"
-    assert len(solution.instructions) == 1
-    assert solution.instructions[0].mw == 1
+    assert len(solution.instructions) == 2
+
+    expected = {
+        'Asset One': 100,
+        'Asset Two': 200,
+    }
+    for instruction in solution.instructions:
+        assert expected[instruction.asset.name] == instruction.mw
