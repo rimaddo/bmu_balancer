@@ -38,8 +38,8 @@ def get_mw_options(
     if mw_bound is None:
         mw_bound = boa.mw
 
-    min_bound = mw_bound if mw_bound < 0 else 0
-    max_bound = mw_bound if mw_bound > 0 else 0
+    min_bound = int(mw_bound if mw_bound < 0 else 0)
+    max_bound = int(mw_bound if mw_bound > 0 else 0)
 
     options = list(range(min_bound, max_bound + increment, increment))
 

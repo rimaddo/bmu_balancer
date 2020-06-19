@@ -7,9 +7,9 @@ from tests import SIMPLE_INPUT_FILEPATH
 def test_load_input_data():
     data = load_input_data(filepath=SIMPLE_INPUT_FILEPATH)
     assert type(data) == InputData
-    assert len(data.assets) == 1
-    assert len(data.rates) == 1
-    assert len(data.states) == 1
+    assert len(data.assets) == 2
+    assert len(data.rates) == 2
+    assert len(data.states) == 2
     assert len(data.bmus) == 1
     assert len(data.offers) == 1
     assert len(data.instructions) == 1

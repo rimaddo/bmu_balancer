@@ -24,6 +24,7 @@ def get_solution(model: LpProblem, variables: Variables) -> Solution:
                     start=candidate.start,
                     end=candidate.end,
                 ))
+
         log.info(f"Got {len(instructions)} instructions choices.")
 
         return Solution(

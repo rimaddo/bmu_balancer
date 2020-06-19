@@ -1,9 +1,12 @@
+import logging
 from datetime import datetime
 from typing import Optional, Union
 
 from bmu_balancer.models import Asset, Instruction, Rate
 from bmu_balancer.models.engine import Candidate
 from bmu_balancer.operations.key_store import KeyStore
+
+log = logging.getLogger(__name__)
 
 
 def get_prior_instruction(
@@ -46,7 +49,8 @@ def get_ramp_cost(instruction: Union[Candidate, Instruction], rates: KeyStore[Ra
 
     rate = rates.get_one_or_none(asset=instruction.asset)
     if rate is None:
-        raise RuntimeError(f"Missing rate for asset {instruction.asset}")
+        log.error(f"Missing rate for asset {instruction.asset}")
+        raise RuntimeError()
 
     ramp_up_rate = (
         getattr(rate, 'ramp_up_import')
