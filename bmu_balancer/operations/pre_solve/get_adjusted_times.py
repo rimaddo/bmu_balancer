@@ -28,7 +28,10 @@ def get_adjusted_start(
     # and the earliest it can deliver is after the boa start,
     # then return the earliest time as the adjusted start.
     if current_instruction is not None and boa.start < earliest_deliver_bid:
-        log.info(f"earliest_deliver_bid: Start time of {asset} adjusted from {boa.start} to {earliest_deliver_bid}")
+        log.warning(
+            f"earliest_deliver_bid: Start time of {asset} adjusted"
+            f"from {boa.start} to {earliest_deliver_bid}"
+        )
         return earliest_deliver_bid
 
     # If the asset is not on, need to make sure it has enough time to switch on.
@@ -37,7 +40,10 @@ def get_adjusted_start(
     earliest_non_zero = execution_time + timedelta(minutes=asset.notice_to_deviate_from_zero)
     if boa.start < earliest_non_zero or boa.start < earliest_deliver_bid:
         notice_to_deviate_from_zero = max(earliest_deliver_bid, earliest_non_zero)
-        log.info(f"notice_to_deviate_from_zero: Start time of {asset} adjusted from {boa.start} to {notice_to_deviate_from_zero}")
+        log.warning(
+            f"{asset} cannot switch on at start because of insufficient notice, "
+            f"start adjusted to {notice_to_deviate_from_zero}"
+        )
         return notice_to_deviate_from_zero
 
     # If all the prior passes, then the boa start is acceptable, return no adjustment.
@@ -62,12 +68,19 @@ def get_adjusted_end(
     elif current_instruction is None and boa_duration > max_delivery:
         # If the runtime is greater however, turn on for as long as possible.
         start = adjusted_start or boa.start
-        return start + max_delivery
+        end = start + max_delivery
+        log.warning(f"{asset} max runtime {max_delivery} exceeded, reducing delivery end to {end}.")
+        return end
 
     # Cases where there is an existing instruction
     inst_and_boa_duration = boa.end - current_instruction.start
     if inst_and_boa_duration > max_delivery:
         start = adjusted_start or current_instruction.start
-        return start + max_delivery
+        end = start + max_delivery
+        log.warning(
+            f"{asset} max runtime {max_delivery} exceeded because of existing instruction, "
+            f"reducing delivery end to {end}."
+        )
+        return end
 
     return None

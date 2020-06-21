@@ -1,6 +1,4 @@
-from operator import attrgetter, itemgetter
-
-from marshmallow import Schema, ValidationError, fields, missing, post_load
+from marshmallow import Schema, post_load
 
 
 class PostLoadObjMixin(Schema):
@@ -14,7 +12,7 @@ class PostLoadObjMixin(Schema):
             )
         return super(PostLoadObjMixin, cls).__new__(cls)
 
-    @post_load()
+    @post_load
     def make_object(self, data, **kwargs):
         return self.__model__(**data)
 

@@ -40,7 +40,6 @@ def balance_a_bmu(
     if do_visualise:
         visualise(
             boa=data.boa,
-            assets=data.assets,
             rates=rates,
             candidates=KeyStore(keys=get_keys(Candidate), objects=candidates),
             instructions=KeyStore(keys=get_keys(Instruction), objects=solution.instructions),
