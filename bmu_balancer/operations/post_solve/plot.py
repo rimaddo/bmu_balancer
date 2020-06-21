@@ -8,7 +8,7 @@ from bmu_balancer.models.engine import Candidate
 from bmu_balancer.operations.key_store import KeyStore
 
 
-def visualise(
+def plot(
         boa: BOA,
         rates: KeyStore[Rate],
         candidates: KeyStore[Candidate],
