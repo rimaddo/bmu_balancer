@@ -24,6 +24,7 @@ def asset_can_be_assigned_to_boa(
         end=boa.end,
     )
     if not asset_states:
+        log.error(f"{asset} marked as unavailable because it does not have any current state data.")
         respects_availability = False
     else:
         respects_availability = all(a.available for a in asset_states)

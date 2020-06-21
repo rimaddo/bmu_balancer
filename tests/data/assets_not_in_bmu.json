@@ -1,0 +1,109 @@
+{
+  "assets": [
+    {
+      "id": 1,
+      "name": "Asset One",
+      "capacity":  200,
+      "running_cost_per_mw_hr": 1,
+      "min_required_profit":  1,
+      "max_import_mw_hr": 1000,
+      "max_export_mw_hr":  1000,
+      "single_import_mw_hr": null,
+      "single_export_mw_hr":  null,
+      "min_zero_time": 1,
+      "min_non_zero_time":  1,
+      "notice_to_deviate_from_zero": 1,
+      "max_delivery_period":  120
+    },
+    {
+      "id": 2,
+      "name": "Asset Two",
+      "capacity":  200,
+      "running_cost_per_mw_hr": 0.1,
+      "min_required_profit":  1,
+      "max_import_mw_hr": 1000,
+      "max_export_mw_hr":  1000,
+      "single_import_mw_hr": null,
+      "single_export_mw_hr":  null,
+      "min_zero_time": 1,
+      "min_non_zero_time":  1,
+      "notice_to_deviate_from_zero": 1,
+      "max_delivery_period":  120
+    }
+  ],
+  "rates": [
+    {
+      "id": 1,
+      "asset": 1,
+      "ramp_up_import": 500,
+      "ramp_up_export": 500,
+      "ramp_down_import": 500,
+      "ramp_down_export": 500,
+      "min_mw": 0,
+      "max_mw": null
+    },
+    {
+      "id": 2,
+      "asset": 2,
+      "ramp_up_import": 1000,
+      "ramp_up_export": 1000,
+      "ramp_down_import": 1000,
+      "ramp_down_export": 1000,
+      "min_mw": 0,
+      "max_mw": null
+    }
+  ],
+  "states":  [
+    {
+      "id": 1,
+      "asset": 1,
+      "start": "2000-01-01T01:00:00Z",
+      "end": "2000-01-01T01:20:00Z",
+      "charge": 0.5,
+      "available": true
+    },
+    {
+      "id": 2,
+      "asset": 2,
+      "start": "2000-01-01T01:00:00Z",
+      "end": "2000-01-01T01:20:00Z",
+      "charge": 0.5,
+      "available": true
+    }
+  ],
+  "bmus": [
+    {
+      "id": 1,
+      "name": "BMU One",
+      "assets": [1]
+    }
+  ],
+  "offers":  [
+    {
+      "id": 1,
+      "bmu": 1,
+      "start": null,
+      "end": null,
+      "price_mw_hr": 100
+    }
+  ],
+  "instructions": [
+    {
+      "id": 1,
+      "asset": 1,
+      "mw": 10,
+      "start": "2000-01-01T08:00:00Z",
+      "end": "2000-01-01T08:30:00Z"
+    }
+  ],
+  "boa":  {
+    "id": 1,
+    "start": "2000-01-01T01:00:00Z",
+    "end": "2000-01-01T01:30:00Z",
+    "mw": 300,
+    "offer": 1
+  },
+  "parameters": {
+    "execution_time": "2000-01-01T00:00:00Z"
+  }
+}

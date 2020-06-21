@@ -49,8 +49,7 @@ def get_ramp_cost(instruction: Union[Candidate, Instruction], rates: KeyStore[Ra
 
     rate = rates.get_one_or_none(asset=instruction.asset)
     if rate is None:
-        log.error(f"Missing rate for asset {instruction.asset}")
-        raise RuntimeError()
+        raise RuntimeError(f"Missing rate for asset {instruction.asset}")
 
     ramp_up_rate = (
         getattr(rate, 'ramp_up_import')

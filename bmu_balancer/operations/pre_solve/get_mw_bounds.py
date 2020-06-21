@@ -64,7 +64,7 @@ def get_mw_bound(
         multiplier = -1 if boa.is_import else 1
         adjusted_volume = int(asset.capacity / delivery_duration_hrs * multiplier)
 
-        log.info(f"Adjusting volume to {adjusted_volume} due to exceeding capacity of {asset.capacity}.")
+        log.warning(f"Adjusting volume to {adjusted_volume} due to exceeding capacity of {asset.capacity}.")
         return adjusted_volume
 
     # Based off mw_hr rate

@@ -1,5 +1,4 @@
 from datetime import timedelta
-from typing import List
 
 import matplotlib.pyplot as plt
 from matplotlib.dates import num2date
@@ -11,15 +10,14 @@ from bmu_balancer.operations.key_store import KeyStore
 
 def visualise(
         boa: BOA,
-        assets: List[Asset],
         rates: KeyStore[Rate],
         candidates: KeyStore[Candidate],
         instructions: KeyStore[Instruction],
 ) -> None:
 
-    fig, axs = plt.subplots(1, len(assets) + 1, sharex=True, sharey=True)
+    fig, axs = plt.subplots(1, len(boa.assets) + 1, sharex=True, sharey=True)
 
-    for n, asset in enumerate(assets):
+    for n, asset in enumerate(boa.assets):
         # Plot each asset candidate and the eventual choice against BOA
         plot_candidates(ax=axs[n], asset=asset, candidates=candidates, rates=rates)
         plot_boa(ax=axs[n], boa=boa)
@@ -27,7 +25,7 @@ def visualise(
         graph_settings(ax=axs[n], title=asset.name)
 
     # Plot end result of cumulative choices
-    n = len(assets)
+    n = len(boa.assets)
     plot_boa(ax=axs[n], boa=boa)
     plot_solution(ax=axs[n], boa=boa, instructions=instructions, rates=rates)
     graph_settings(ax=axs[n], title='Result')
@@ -75,19 +73,20 @@ def plot_boa(ax, boa: BOA) -> None:
 
 def plot_solution_instruction(ax, asset: Asset, instructions: KeyStore[Instruction], rates: KeyStore[Rate]) -> None:
     instruction = instructions.get_one_or_none(asset=asset)
-    ramp_up_start = get_ramp_up_start_time(asset=asset, rates=rates, mw=instruction.mw)
-    ramp_down_end = get_ramp_down_end_time(asset=asset, rates=rates, mw=instruction.mw)
-    ax.fill_between(
-        [
-            instruction.start - timedelta(hours=ramp_up_start),
-            instruction.start,
-            instruction.end,
-            instruction.end + timedelta(hours=ramp_down_end),
-        ],
-        [0, instruction.mw, instruction.mw, 0],
-        facecolor='blue',
-        alpha=0.5,
-    )
+    if instruction is not None:
+        ramp_up_start = get_ramp_up_start_time(asset=asset, rates=rates, mw=instruction.mw)
+        ramp_down_end = get_ramp_down_end_time(asset=asset, rates=rates, mw=instruction.mw)
+        ax.fill_between(
+            [
+                instruction.start - timedelta(hours=ramp_up_start),
+                instruction.start,
+                instruction.end,
+                instruction.end + timedelta(hours=ramp_down_end),
+            ],
+            [0, instruction.mw, instruction.mw, 0],
+            facecolor='blue',
+            alpha=0.5,
+        )
 
 
 def plot_solution(ax, boa: BOA, instructions: KeyStore[Instruction], rates: KeyStore[Rate]) -> None:
