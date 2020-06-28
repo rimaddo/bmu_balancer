@@ -157,8 +157,8 @@ def test_run_engine(assets: Tuple[Asset], ramp_rates: Dict, asset_mw: Dict[str, 
 
     boa = BOAFactory(
         mw=10,
-        offer__price_mw_hr=10,
-        offer__bmu__assets=tuple(assets),
+        price_mw_hr=10,
+        bmu__assets=tuple(assets),
         start=datetime(2020, 1, 1, 1),
         end=datetime(2020, 1, 1, 4),
     )

@@ -1,18 +1,18 @@
 from datetime import datetime, timedelta
 
-from bmu_balancer.models import AssetState, Instruction
+from bmu_balancer.models import Instruction, State
 from bmu_balancer.operations.key_store import KeyStore, get_keys
 from bmu_balancer.operations.pre_solve.generate_instruction_candidates import generate_instruction_candidates
-from tests.factories import AssetFactory, AssetStateFactory, BOAFactory
+from tests.factories import AssetFactory, BOAFactory, StateFactory
 
 
 def test_generate_instruction_candidates(asset: AssetFactory, boa: BOAFactory) -> None:
     """Since each sub-function is tested more thoroughly and directly
     this is only tested in a high-level way."""
     states = KeyStore(
-        keys=get_keys(AssetState),
+        keys=get_keys(State),
         objects={
-            AssetStateFactory(
+            StateFactory(
                 asset=asset,
                 start=boa.start - timedelta(hours=1),
                 end=boa.end + timedelta(hours=1),

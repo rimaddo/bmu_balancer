@@ -1,14 +1,13 @@
 import json
 from datetime import date, datetime
-from typing import Dict, List
+from typing import Dict
 
 from bmu_balancer.io.input_schemas import (
-    AssetSchema, AssetStateSchema,
+    AssetSchema,
     BMUSchema,
     InputDataSchema,
     InstructionSchema,
-    OfferSchema,
-    RateSchema,
+    RateSchema, StateSchema,
 )
 from bmu_balancer.io.output_schemas import SolutionSchema
 from bmu_balancer.models import InputData
@@ -27,9 +26,8 @@ def load_input_data(filepath: str) -> InputData:
     for name, schema in {
         'assets': AssetSchema,
         'rates': RateSchema,
-        'states': AssetStateSchema,
+        'states': StateSchema,
         'bmus': BMUSchema,
-        'offers': OfferSchema,
         'instructions': InstructionSchema
     }.items():
         items = schema(context=context).load(data_dict[name], many=True)

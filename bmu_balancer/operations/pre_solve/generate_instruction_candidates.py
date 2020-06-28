@@ -1,11 +1,10 @@
 import logging
-import sys
 from datetime import datetime
 from time import time
 from typing import List
 
 from bmu_balancer.models.engine import Candidate
-from bmu_balancer.models.inputs import AssetState, BOA
+from bmu_balancer.models.inputs import BOA, State
 from bmu_balancer.models.outputs import Instruction
 from bmu_balancer.operations.instruction_helpers import get_prior_instruction
 from bmu_balancer.operations.key_store import KeyStore
@@ -23,7 +22,7 @@ NOW = datetime.utcnow()
 
 def generate_instruction_candidates(
         boa: BOA,
-        states: KeyStore[AssetState],
+        states: KeyStore[State],
         instructions: KeyStore[Instruction],
         execution_time: datetime = NOW,
 ) -> List[Candidate]:

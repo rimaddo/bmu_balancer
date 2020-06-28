@@ -4,8 +4,8 @@ from datetime import datetime
 from marshmallow import fields, post_load
 
 from bmu_balancer.io.utils import PostLoadObjMixin
-from bmu_balancer.models import Asset, AssetState, BMU, BOA, InputData, Instruction, Offer, Rate
-from bmu_balancer.models.inputs import Parameters
+from bmu_balancer.models import Asset, BMU, BOA, InputData, Instruction, Rate
+from bmu_balancer.models.inputs import Parameters, State
 
 
 class ParametersSchema(PostLoadObjMixin):
@@ -49,9 +49,9 @@ class RateSchema(PostLoadObjMixin):
     max_mw = fields.Integer(missing=None)
 
 
-class AssetStateSchema(PostLoadObjMixin):
+class StateSchema(PostLoadObjMixin):
 
-    __model__ = AssetState
+    __model__ = State
 
     id = fields.Integer(required=True)
     asset = fields.Function(deserialize=lambda data, context: context['assets'][data])
@@ -75,17 +75,6 @@ class BMUSchema(PostLoadObjMixin):
         return data
 
 
-class OfferSchema(PostLoadObjMixin):
-
-    __model__ = Offer
-
-    id = fields.Integer(required=True)
-    bmu = fields.Function(deserialize=lambda data, context: context['bmus'][data])
-    start = fields.AwareDateTime(nullable=True, missing=None)
-    end = fields.AwareDateTime(nullable=True, missing=None)
-    price_mw_hr = fields.Float(missing=0)
-
-
 class InstructionSchema(PostLoadObjMixin):
 
     __model__ = Instruction
@@ -106,7 +95,8 @@ class BOASchema(PostLoadObjMixin):
     start = fields.AwareDateTime(required=True)
     end = fields.AwareDateTime(required=True)
     mw = fields.Float(required=True)
-    offer = fields.Function(deserialize=lambda data, context: context['offers'][data])
+    price_mw_hr = fields.Float(required=True)
+    bmu = fields.Function(deserialize=lambda data, context: context['bmus'][data])
 
 
 class InputDataSchema(PostLoadObjMixin):
@@ -118,6 +108,5 @@ class InputDataSchema(PostLoadObjMixin):
     rates = fields.List(fields.Function(deserialize=lambda data, context: context['rates'][data['id']]))
     states = fields.List(fields.Function(deserialize=lambda data, context: context['states'][data['id']]))
     bmus = fields.List(fields.Function(deserialize=lambda data, context: context['bmus'][data['id']]))
-    offers = fields.List(fields.Function(deserialize=lambda data, context: context['offers'][data['id']]))
     instructions = fields.List(fields.Function(deserialize=lambda data, context: context['instructions'][data['id']]))
     boa = fields.Nested(BOASchema)

@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
-from factory import Factory, List, LazyAttribute, SubFactory, fuzzy, Sequence
+from factory import Factory, LazyAttribute, List, Sequence, SubFactory, fuzzy
 
-from bmu_balancer.models.inputs import Asset, Rate, AssetState, BMU, Offer, BOA
+from bmu_balancer.models.inputs import Asset, BMU, BOA, Rate, State
 from bmu_balancer.models.outputs import Instruction
 
 MIN, MAX = 0, 1000
@@ -38,7 +38,6 @@ class RateFactory(Factory):
         model = Rate
 
     id = Sequence(lambda x: x)
-    asset = SubFactory(AssetFactory)
     ramp_up_import = fuzzy.FuzzyFloat(MIN, MAX)
     ramp_up_export = fuzzy.FuzzyFloat(MIN, MAX)
     ramp_down_import = fuzzy.FuzzyFloat(MIN, MAX)
@@ -47,9 +46,9 @@ class RateFactory(Factory):
     max_mw = None
 
 
-class AssetStateFactory(Factory):
+class StateFactory(Factory):
     class Meta:
-        model = AssetState
+        model = State
 
     id = Sequence(lambda x: x)
     asset = SubFactory(AssetFactory)
@@ -68,17 +67,6 @@ class BMUFactory(Factory):
     name = LazyAttribute(lambda x: f"Asset {x.id}")
 
 
-class OfferFactory(Factory):
-    class Meta:
-        model = Offer
-
-    id = Sequence(lambda x: x)
-    bmu = SubFactory(BMUFactory)
-    start = fuzzy.FuzzyDate(START_DATE, END_DATE)
-    end = LazyAttribute(lambda x: x.start + timedelta(minutes=DEFAULT_MIN_DURATION))
-    price_mw_hr = fuzzy.FuzzyFloat(MIN, MAX)
-
-
 class BOAFactory(Factory):
     class Meta:
         model = BOA
@@ -87,7 +75,8 @@ class BOAFactory(Factory):
     start = fuzzy.FuzzyDate(START_DATE, END_DATE)
     end = LazyAttribute(lambda x: x.start + timedelta(minutes=DEFAULT_MIN_DURATION))
     mw = fuzzy.FuzzyFloat(MIN, MAX)
-    offer = SubFactory(OfferFactory)
+    price_mw_hr = fuzzy.FuzzyFloat(MIN, MAX)
+    bmu = SubFactory(BMUFactory)
 
 
 # OUTPUTS -------------------------------------------------------------------- #

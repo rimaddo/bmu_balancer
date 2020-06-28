@@ -70,15 +70,6 @@
       "assets": [1, 2]
     }
   ],
-  "offers":  [
-    {
-      "id": 1,
-      "bmu": 1,
-      "start": null,
-      "end": null,
-      "price_mw_hr": 100
-    }
-  ],
   "instructions": [
     {
       "id": 1,
@@ -93,7 +84,8 @@
     "start": "2000-01-01T01:00:00Z",
     "end": "2000-01-01T01:30:00Z",
     "mw": 300,
-    "offer": 1
+    "bmu": 1,
+    "price_mw_hr": 100
   },
   "parameters": {
     "execution_time": "2000-01-01T00:00:00Z"

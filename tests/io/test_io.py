@@ -11,6 +11,5 @@ def test_load_input_data():
     assert len(data.rates) == 2
     assert len(data.states) == 2
     assert len(data.bmus) == 1
-    assert len(data.offers) == 1
     assert len(data.instructions) == 1
     assert type(data.boa) == BOA

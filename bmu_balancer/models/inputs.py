@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 
 @dataclass(frozen=True)
@@ -46,7 +46,7 @@ class Rate:
 
 
 @dataclass(frozen=True)
-class AssetState:
+class State:
     id: int
     asset: Asset
     start: datetime
@@ -68,36 +68,21 @@ class BMU:
 
 
 @dataclass(frozen=True)
-class Offer:
-    id: int
-    bmu: BMU
-    start: Optional[datetime]
-    end: Optional[datetime]
-    price_mw_hr: float
-
-    def __repr__(self) -> str:
-        return f"Offer(start: {self.start.isoformat()}, end: {self.end.isoformat()}, price: {self.price_mw_hr})"
-
-
-@dataclass(frozen=True)
 class BOA:
     id: int
     start: datetime
     end: datetime
+    price_mw_hr: float
     mw: int
-    offer: Offer
-
-    @property
-    def price_mw_hr(self) -> float:
-        return self.offer.price_mw_hr
+    bmu: BMU
 
     @property
     def assets(self) -> Tuple[Asset]:
-        return self.offer.bmu.assets
+        return self.bmu.assets
 
     @property
     def is_import(self) -> bool:
         return self.mw < 0
 
     def __repr__(self) -> str:
-        return f"BOA(start: {self.start.isoformat()}, end: {self.end.isoformat()}, mw: {self.mw}, price: {self.offer.price_mw_hr})"
+        return f"BOA(start: {self.start.isoformat()}, end: {self.end.isoformat()}, mw: {self.mw}, price: {self.price_mw_hr})"

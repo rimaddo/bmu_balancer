@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 
-from bmu_balancer.models import Asset, AssetState, BOA, Instruction
+from bmu_balancer.models import Asset, State, BOA, Instruction
 from bmu_balancer.operations.key_store import KeyStore
 from bmu_balancer.operations.utils import get_items_for_period
 
@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 def asset_can_be_assigned_to_boa(
         asset: Asset,
         boa: BOA,
-        states: KeyStore[AssetState],
+        states: KeyStore[State],
         current_instruction: Instruction,
         prior_instruction: Instruction,
 ) -> bool:

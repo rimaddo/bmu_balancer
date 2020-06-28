@@ -25,7 +25,7 @@ def asset() -> AssetFactory:
 def boa(asset: AssetFactory) -> BOAFactory:
     return BOAFactory(
         id=1,
-        offer__bmu__assets={asset},
+        bmu__assets={asset},
         start=datetime(2000, 1, 1, 10),
         end=datetime(2000, 1, 1, 10, 30),
         mw=500,

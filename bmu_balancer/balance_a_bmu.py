@@ -1,5 +1,5 @@
 from bmu_balancer.engine.main import run_engine
-from bmu_balancer.models import AssetState, InputData, Instruction, Rate
+from bmu_balancer.models import InputData, Instruction, Rate, State
 from bmu_balancer.models.engine import Candidate, Solution
 from bmu_balancer.operations.key_store import KeyStore, get_keys
 from bmu_balancer.operations.post_solve.plot import plot
@@ -13,7 +13,7 @@ def balance_a_bmu(
 
     # Pre-solve
     rates = KeyStore(keys=get_keys(Rate), objects=data.rates)
-    states = KeyStore(keys=get_keys(AssetState), objects=data.states)
+    states = KeyStore(keys=get_keys(State), objects=data.states)
     instructions = KeyStore(keys=get_keys(Instruction), objects=data.instructions)
     candidates = generate_instruction_candidates(
         boa=data.boa,

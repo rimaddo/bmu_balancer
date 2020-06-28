@@ -3,10 +3,10 @@ from typing import Any, Dict
 
 import pytest
 
-from bmu_balancer.models import AssetState
+from bmu_balancer.models import State
 from bmu_balancer.operations.key_store import KeyStore, get_keys
 from bmu_balancer.operations.pre_solve.check_instruction_is_valid import asset_can_be_assigned_to_boa
-from tests.factories import AssetFactory, AssetStateFactory, BOAFactory, InstructionFactory
+from tests.factories import AssetFactory, BOAFactory, InstructionFactory, StateFactory
 
 
 @pytest.fixture
@@ -17,8 +17,9 @@ def asset_can_be_assigned_to_boa_fixtures(
         current_instruction: InstructionFactory,
 ) -> Dict[int, Dict[str, Any]]:
 
-    keys = get_keys(AssetState)
-    state_available = AssetStateFactory(
+    keys = get_keys(State)
+
+    state_available = StateFactory(
         asset=asset,
         start=datetime(2000, 1, 1),
         end=datetime(2000, 2, 1),
@@ -53,7 +54,7 @@ def asset_can_be_assigned_to_boa_fixtures(
                 keys=keys,
                 objects=[
                     state_available,
-                    AssetStateFactory(
+                    StateFactory(
                         asset=asset,
                         start=datetime(2000, 1, 1),
                         end=datetime(2000, 2, 1),
