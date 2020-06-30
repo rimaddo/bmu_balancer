@@ -2,11 +2,21 @@ from datetime import datetime
 
 import pytest
 
-from tests.factories import AssetFactory, BOAFactory, InstructionFactory
+from tests.factories import AssetFactory, BOAFactory, InstructionFactory, RateFactory
 
 
 @pytest.fixture
-def asset() -> AssetFactory:
+def rate() -> RateFactory:
+    return RateFactory(
+        ramp_up_import=1,
+        ramp_up_export=1,
+        ramp_down_import=1,
+        ramp_down_export=1,
+    )
+
+
+@pytest.fixture
+def asset(rate: RateFactory) -> AssetFactory:
     return AssetFactory(
         id=1,
         name="asset",
@@ -18,6 +28,7 @@ def asset() -> AssetFactory:
         max_delivery_period=30,
         max_import_mw_hr=100,
         max_export_mw_hr=100,
+        rates=(rate),
     )
 
 

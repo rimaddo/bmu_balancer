@@ -44,7 +44,7 @@ class AssetFactory(Factory):
     notice_to_deviate_from_zero = fuzzy.FuzzyFloat(MIN, MAX)
     notice_to_deliver_bid = fuzzy.FuzzyFloat(MIN, MAX)
     max_delivery_period = fuzzy.FuzzyFloat(MIN, MAX)
-    rates = List([SubFactory(RateFactory)])
+    rates = ()  # List([SubFactory(RateFactory)])
 
 
 class StateFactory(Factory):
@@ -78,6 +78,7 @@ class BOAFactory(Factory):
     mw = fuzzy.FuzzyFloat(MIN, MAX)
     price_mw_hr = fuzzy.FuzzyFloat(MIN, MAX)
     bmu = SubFactory(BMUFactory)
+    rates = ()  # List([SubFactory(RateFactory)])
 
 
 # OUTPUTS -------------------------------------------------------------------- #

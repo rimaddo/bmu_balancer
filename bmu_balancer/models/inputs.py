@@ -30,7 +30,7 @@ class Asset:
     running_cost_per_mw_hr: float
     min_required_profit: float
     # Ramps
-    rates: Collection[Rate]
+    rates: Tuple[Rate]
     # Constraints
     max_import_mw_hr: float
     max_export_mw_hr: float

@@ -4,10 +4,16 @@ from typing import Dict, Tuple
 import pytest
 
 from bmu_balancer.engine.main import run_engine
-from bmu_balancer.models import Asset, Rate
+from bmu_balancer.models import Asset
 from bmu_balancer.models.engine import Candidate
-from bmu_balancer.operations.key_store import KeyStore, get_keys
 from tests.factories import AssetFactory, BOAFactory, RateFactory
+
+RATE = RateFactory(
+    ramp_up_import=1,
+    ramp_up_export=1,
+    ramp_down_import=1,
+    ramp_down_export=1,
+)
 
 UNDER_MIN_REQUIRED_PROFIT = [
     # Check that don't choose to turn on an asset if the
@@ -19,6 +25,7 @@ UNDER_MIN_REQUIRED_PROFIT = [
     AssetFactory(
         name="one",
         min_required_profit=100,
+        rates=tuple([RATE]),
     )
 ]
 
@@ -32,13 +39,11 @@ OVER_MIN_REQUIRED_PROFIT = [
     AssetFactory(
         name="one",
         min_required_profit=10,
+        rates=tuple([RATE]),
     )
 ]
 
-RAMP_RATES = {
-    "one": {"ramp_up_import": 1, "ramp_up_export": 1, "ramp_down_import": 1, "ramp_down_export": 1},
-    "two": {"ramp_up_import": 1, "ramp_up_export": 1, "ramp_down_import": 1, "ramp_down_export": 1},
-}
+
 MINIMISE_COST_PER_MW = [
     # Check that when given two assets it will choose the one with the
     # lower running cost.
@@ -46,11 +51,13 @@ MINIMISE_COST_PER_MW = [
         name="one",
         min_required_profit=1,
         running_cost_per_mw_hr=1,
+        rates=tuple([RATE]),
     ),
     AssetFactory(
         name="two",
         min_required_profit=2,
         running_cost_per_mw_hr=2,
+        rates=tuple([RATE]),
     )
 ]
 
@@ -60,16 +67,19 @@ RAMP_RATE_UP_ASSETS = [
     AssetFactory(
         name="one",
         min_required_profit=1,
+        rates=tuple([RATE]),
     ),
     AssetFactory(
         name="two",
         min_required_profit=1,
+        rates=tuple([RateFactory(
+            ramp_up_import=2,
+            ramp_up_export=2,
+            ramp_down_import=1,
+            ramp_down_export=1,
+        )]),
     )
 ]
-RAMP_RATE_UP = {
-    "one": {"ramp_up_import": 1, "ramp_up_export": 1},
-    "two": {"ramp_up_import": 2, "ramp_up_export": 2},
-}
 
 RAMP_RATE_DOWN_ASSETS = [
     # Check that when given two assets it will choose the one with the
@@ -77,16 +87,20 @@ RAMP_RATE_DOWN_ASSETS = [
     AssetFactory(
         name="one",
         min_required_profit=1,
+        rates=tuple([RATE]),
     ),
     AssetFactory(
         name="two",
         min_required_profit=1,
+        rates=tuple([RateFactory(
+            ramp_up_import=1,
+            ramp_up_export=1,
+            ramp_down_import=2,
+            ramp_down_export=2,
+        )]),
     )
 ]
-RAMP_RATE_DOWN = {
-    "one": {"ramp_down_import": 1, "ramp_down_export": 1},
-    "two": {"ramp_down_import": 2, "ramp_down_export": 2},
-}
+
 
 VARIABLE_BOUNDS = [
     # Check that when an asset has a limited capacity
@@ -96,11 +110,13 @@ VARIABLE_BOUNDS = [
         name="one",
         min_required_profit=1,
         capacity=4,
+        rates=tuple([RATE]),
     ),
     AssetFactory(
         name="two",
         min_required_profit=1,
         capacity=6,
+        rates=tuple([RATE]),
     )
 ]
 
@@ -112,36 +128,38 @@ MAXIMISE_FULFILLMENT = [
         name="one",
         min_required_profit=1,
         capacity=2,
+        rates=tuple([RATE]),
     ),
     AssetFactory(
         name="two",
         min_required_profit=1,
         capacity=3,
+        rates=tuple([RATE]),
     )
 ]
 
 
 @pytest.mark.parametrize(
-    "assets, ramp_rates, asset_mw",
+    "assets, asset_mw",
     [
         # Constraints
         # Necessary profit, fails
-        (UNDER_MIN_REQUIRED_PROFIT, {}, {"one": 0}),
+        (UNDER_MIN_REQUIRED_PROFIT, {"one": 0}),
         # Necessary profit, passes
-        (OVER_MIN_REQUIRED_PROFIT, {}, {"one": 10}),
+        (OVER_MIN_REQUIRED_PROFIT, {"one": 10}),
 
         # Objective
         # Minimise Asset cost per mw
-        (MINIMISE_COST_PER_MW, RAMP_RATES, {"one": 10, "two": 0}),
+        (MINIMISE_COST_PER_MW, {"one": 10, "two": 0}),
         # Choose faster ramp rate
-        (RAMP_RATE_UP_ASSETS, RAMP_RATE_UP, {"one": 0, "two": 10}),
+        (RAMP_RATE_UP_ASSETS, {"one": 0, "two": 10}),
         # Choose faster ramp down rate
-        (RAMP_RATE_DOWN_ASSETS, RAMP_RATE_DOWN, {"one": 0, "two": 10}),
+        (RAMP_RATE_DOWN_ASSETS, {"one": 0, "two": 10}),
 
         # Variable bounds
-        (VARIABLE_BOUNDS, {}, {"one": 0, "two": 5}),
+        (VARIABLE_BOUNDS, {"one": 0, "two": 5}),
         # Maximise within bounds
-        (MAXIMISE_FULFILLMENT, {}, {"one": 0, "two": 0}),
+        (MAXIMISE_FULFILLMENT, {"one": 0, "two": 0}),
     ],
     ids=[
         "1. Constraints: Necessary profit, fails",
@@ -153,7 +171,7 @@ MAXIMISE_FULFILLMENT = [
         "7. Maximise within bounds",
     ]
 )
-def test_run_engine(assets: Tuple[Asset], ramp_rates: Dict, asset_mw: Dict[str, int]) -> None:
+def test_run_engine(assets: Tuple[Asset], asset_mw: Dict[str, int]) -> None:
 
     boa = BOAFactory(
         mw=10,
@@ -172,17 +190,9 @@ def test_run_engine(assets: Tuple[Asset], ramp_rates: Dict, asset_mw: Dict[str, 
         for mw in [0, 5, 10]
         if abs(mw) <= asset.capacity
     ]
-    rates = KeyStore(
-        keys=get_keys(Rate),
-        objects=[
-            RateFactory(asset=asset, **ramp_rates.get(asset.name, {}))
-            for asset in assets
-        ],
-    )
 
     solution = run_engine(
         boa=boa,
-        rates=rates,
         candidates=candidates,
     )
 
