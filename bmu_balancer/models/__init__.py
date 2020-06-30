@@ -9,7 +9,6 @@ from bmu_balancer.models.outputs import Instruction
 class InputData:
     parameters: Parameters
     assets: List[Asset]
-    rates: List[Rate]
     states: List[State]
     bmus: List[BMU]
     instructions: List[Instruction]

@@ -60,6 +60,7 @@ def generate_instruction_candidates(
             # for a non-zero time.
 
             # Define candidate parameters
+            # TODO: We can do more interesting things with the start / end given BOA rates
             adjusted_start = get_adjusted_start(
                 asset=asset,
                 boa=boa,

@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Collection, Dict
 
 from pulp import LpBinary, LpVariable
 
@@ -6,7 +6,7 @@ from bmu_balancer.models.engine import Candidate, Variables
 
 
 def create_variables(
-        candidates: List[Candidate],
+        candidates: Collection[Candidate],
 ) -> Variables:
     """Create a set of problem variables."""
     return Variables(
@@ -17,7 +17,7 @@ def create_variables(
 
 
 def get_candidate_variables(
-        candidates: List[Candidate],
+        candidates: Collection[Candidate],
 ) -> Dict[Candidate, LpVariable]:
     """Create variables for the assignment of a mw value to an asset."""
     return {

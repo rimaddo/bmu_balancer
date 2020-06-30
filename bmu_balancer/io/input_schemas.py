@@ -15,6 +15,19 @@ class ParametersSchema(PostLoadObjMixin):
     execution_time = fields.AwareDateTime(missing=datetime.utcnow())
 
 
+class RateSchema(PostLoadObjMixin):
+
+    __model__ = Rate
+
+    id = fields.Integer(required=True)
+    ramp_up_import = fields.Float(required=True)
+    ramp_up_export = fields.Float(required=True)
+    ramp_down_import = fields.Float(required=True)
+    ramp_down_export = fields.Float(required=True)
+    min_mw = fields.Integer(missing=0)
+    max_mw = fields.Integer(missing=None)
+
+
 class AssetSchema(PostLoadObjMixin):
 
     __model__ = Asset
@@ -33,20 +46,12 @@ class AssetSchema(PostLoadObjMixin):
     notice_to_deviate_from_zero = fields.Float(missing=0)
     notice_to_deliver_bid = fields.Float(missing=0, nullable=False)
     max_delivery_period = fields.Float(missing=None)
+    rates = fields.Nested(RateSchema, many=True)
 
-
-class RateSchema(PostLoadObjMixin):
-
-    __model__ = Rate
-
-    id = fields.Integer(required=True)
-    asset = fields.Function(deserialize=lambda data, context: context['assets'][data])
-    ramp_up_import = fields.Float(required=True)
-    ramp_up_export = fields.Float(required=True)
-    ramp_down_import = fields.Float(required=True)
-    ramp_down_export = fields.Float(required=True)
-    min_mw = fields.Integer(missing=0)
-    max_mw = fields.Integer(missing=None)
+    @post_load
+    def list_to_tuple_for_immutability(self, data, **kwargs):
+        data['rates'] = tuple(data.get('rates', []))
+        return data
 
 
 class StateSchema(PostLoadObjMixin):
@@ -97,6 +102,12 @@ class BOASchema(PostLoadObjMixin):
     mw = fields.Float(required=True)
     price_mw_hr = fields.Float(required=True)
     bmu = fields.Function(deserialize=lambda data, context: context['bmus'][data])
+    rates = fields.Nested(RateSchema, many=True, missing=())
+
+    @post_load
+    def list_to_tuple_for_immutability(self, data, **kwargs):
+        data['rates'] = tuple(data.get('rates', []))
+        return data
 
 
 class InputDataSchema(PostLoadObjMixin):
@@ -105,7 +116,6 @@ class InputDataSchema(PostLoadObjMixin):
 
     parameters = fields.Nested(ParametersSchema)
     assets = fields.List(fields.Function(deserialize=lambda data, context: context['assets'][data['id']]))
-    rates = fields.List(fields.Function(deserialize=lambda data, context: context['rates'][data['id']]))
     states = fields.List(fields.Function(deserialize=lambda data, context: context['states'][data['id']]))
     bmus = fields.List(fields.Function(deserialize=lambda data, context: context['bmus'][data['id']]))
     instructions = fields.List(fields.Function(deserialize=lambda data, context: context['instructions'][data['id']]))

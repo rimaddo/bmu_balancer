@@ -13,6 +13,19 @@ DEFAULT_MIN_DURATION = 30
 
 # INPUTS --------------------------------------------------------------------- #
 
+class RateFactory(Factory):
+    class Meta:
+        model = Rate
+
+    id = Sequence(lambda x: x)
+    ramp_up_import = fuzzy.FuzzyFloat(MIN, MAX)
+    ramp_up_export = fuzzy.FuzzyFloat(MIN, MAX)
+    ramp_down_import = fuzzy.FuzzyFloat(MIN, MAX)
+    ramp_down_export = fuzzy.FuzzyFloat(MIN, MAX)
+    min_mw = 0
+    max_mw = None
+
+
 class AssetFactory(Factory):
     class Meta:
         model = Asset
@@ -31,19 +44,7 @@ class AssetFactory(Factory):
     notice_to_deviate_from_zero = fuzzy.FuzzyFloat(MIN, MAX)
     notice_to_deliver_bid = fuzzy.FuzzyFloat(MIN, MAX)
     max_delivery_period = fuzzy.FuzzyFloat(MIN, MAX)
-
-
-class RateFactory(Factory):
-    class Meta:
-        model = Rate
-
-    id = Sequence(lambda x: x)
-    ramp_up_import = fuzzy.FuzzyFloat(MIN, MAX)
-    ramp_up_export = fuzzy.FuzzyFloat(MIN, MAX)
-    ramp_down_import = fuzzy.FuzzyFloat(MIN, MAX)
-    ramp_down_export = fuzzy.FuzzyFloat(MIN, MAX)
-    min_mw = 0
-    max_mw = None
+    rates = List([SubFactory(RateFactory)])
 
 
 class StateFactory(Factory):

@@ -8,7 +8,6 @@ def test_load_input_data():
     data = load_input_data(filepath=SIMPLE_INPUT_FILEPATH)
     assert type(data) == InputData
     assert len(data.assets) == 2
-    assert len(data.rates) == 2
     assert len(data.states) == 2
     assert len(data.bmus) == 1
     assert len(data.instructions) == 1

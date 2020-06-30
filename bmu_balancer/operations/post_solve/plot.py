@@ -1,4 +1,6 @@
+from collections import Collection
 from datetime import timedelta
+from typing import Set
 
 import matplotlib.pyplot as plt
 from matplotlib.dates import num2date
@@ -10,7 +12,6 @@ from bmu_balancer.operations.key_store import KeyStore
 
 def plot(
         boa: BOA,
-        rates: KeyStore[Rate],
         candidates: KeyStore[Candidate],
         instructions: KeyStore[Instruction],
 ) -> None:
@@ -19,26 +20,26 @@ def plot(
 
     for n, asset in enumerate(boa.assets):
         # Plot each asset candidate and the eventual choice against BOA
-        plot_candidates(ax=axs[n], asset=asset, candidates=candidates, rates=rates)
+        plot_candidates(ax=axs[n], asset=asset, candidates=candidates)
         plot_boa(ax=axs[n], boa=boa)
-        plot_solution_instruction(ax=axs[n], asset=asset, instructions=instructions, rates=rates)
+        plot_solution_instruction(ax=axs[n], asset=asset, instructions=instructions)
         graph_settings(ax=axs[n], title=asset.name)
 
     # Plot end result of cumulative choices
     n = len(boa.assets)
     plot_boa(ax=axs[n], boa=boa)
-    plot_solution(ax=axs[n], boa=boa, instructions=instructions, rates=rates)
+    plot_solution(ax=axs[n], boa=boa, instructions=instructions)
     graph_settings(ax=axs[n], title='Result')
 
     plt.show()
 
 
-def plot_candidates(ax, asset: Asset, candidates: KeyStore[Candidate], rates: KeyStore[Rate]) -> None:
+def plot_candidates(ax, asset: Asset, candidates: KeyStore[Candidate]) -> None:
     x, y = [], []
     for candidate in candidates.get(asset=asset):
         if candidate.mw != 0:
             # Start ramp-up
-            ramp_up_start = get_ramp_up_start_time(asset=asset, rates=rates, mw=candidate.mw)
+            ramp_up_start = get_ramp_up_start_time(rates=asset.rates, mw=candidate.mw)
             x.append(candidate.start - timedelta(hours=ramp_up_start))
             y.append(0)
 
@@ -51,7 +52,7 @@ def plot_candidates(ax, asset: Asset, candidates: KeyStore[Candidate], rates: Ke
             y.append(candidate.mw)
 
             # End ramp-down
-            ramp_down_end = get_ramp_down_end_time(asset=asset, rates=rates, mw=candidate.mw)
+            ramp_down_end = get_ramp_down_end_time(rates=asset.rates, mw=candidate.mw)
             x.append(candidate.end + timedelta(hours=ramp_down_end))
             y.append(0)
 
@@ -59,23 +60,25 @@ def plot_candidates(ax, asset: Asset, candidates: KeyStore[Candidate], rates: Ke
 
 
 def plot_boa(ax, boa: BOA) -> None:
+    ramp_up_start = get_ramp_up_start_time(rates=boa.rates, mw=boa.mw)
+    ramp_down_end = get_ramp_down_end_time(rates=boa.rates, mw=boa.mw)
     ax.plot(
         [
-            boa.start - timedelta(milliseconds=1),
+            boa.start - timedelta(hours=ramp_up_start),
             boa.start,
             boa.end,
-            boa.end + timedelta(milliseconds=1),
+            boa.end + timedelta(hours=ramp_down_end),
         ],
         [0, boa.mw, boa.mw, 0],
         color='orange',
     )
 
 
-def plot_solution_instruction(ax, asset: Asset, instructions: KeyStore[Instruction], rates: KeyStore[Rate]) -> None:
+def plot_solution_instruction(ax, asset: Asset, instructions: KeyStore[Instruction]) -> None:
     instruction = instructions.get_one_or_none(asset=asset)
     if instruction is not None:
-        ramp_up_start = get_ramp_up_start_time(asset=asset, rates=rates, mw=instruction.mw)
-        ramp_down_end = get_ramp_down_end_time(asset=asset, rates=rates, mw=instruction.mw)
+        ramp_up_start = get_ramp_up_start_time(rates=asset.rates, mw=instruction.mw)
+        ramp_down_end = get_ramp_down_end_time(rates=asset.rates, mw=instruction.mw)
         ax.fill_between(
             [
                 instruction.start - timedelta(hours=ramp_up_start),
@@ -89,7 +92,7 @@ def plot_solution_instruction(ax, asset: Asset, instructions: KeyStore[Instructi
         )
 
 
-def plot_solution(ax, boa: BOA, instructions: KeyStore[Instruction], rates: KeyStore[Rate]) -> None:
+def plot_solution(ax, boa: BOA, instructions: KeyStore[Instruction]) -> None:
     x, y = [], []
 
     levels = [0] + sorted([instr.mw for instr in instructions])
@@ -99,7 +102,7 @@ def plot_solution(ax, boa: BOA, instructions: KeyStore[Instruction], rates: KeyS
     for level in levels:
         counter += level
         ramp_start = sum(
-            get_ramp_up_start_time(asset=instr.asset, rates=rates, mw=instr.mw)
+            get_ramp_up_start_time(rates=instr.asset.rates, mw=instr.mw)
             for instr in instructions
             if instr.mw > level
         )
@@ -110,7 +113,7 @@ def plot_solution(ax, boa: BOA, instructions: KeyStore[Instruction], rates: KeyS
     counter = sum(levels)
     for level in sorted(levels, reverse=True):
         ramp_end = sum(
-            get_ramp_down_end_time(asset=instr.asset, rates=rates, mw=instr.mw)
+            get_ramp_down_end_time(rates=instr.asset.rates, mw=instr.mw)
             for instr in instructions
             if instr.mw > level
         )
@@ -138,13 +141,21 @@ def graph_settings(ax, title: str) -> None:
     ax.set_xticklabels(ticks, rotation=90)
 
 
-def get_ramp_up_start_time(asset: Asset, rates: KeyStore[Rate], mw: int) -> float:
-    rate = rates.get_one_or_none(asset=asset)
+def get_ramp_up_start_time(rates: Set[Rate], mw: int) -> float:
+    if len(rates) != 1:
+        raise RuntimeError(
+            f"{len(rates)} rates but only logic for one has been implemented!!")
+    rate = rates[0]
+
     ramp_rate = rate.ramp_up_import if mw < 0 else rate.ramp_up_export
     return mw / float(ramp_rate)
 
 
-def get_ramp_down_end_time(asset: Asset, rates: KeyStore[Rate], mw: int) -> float:
-    rate = rates.get_one_or_none(asset=asset)
+def get_ramp_down_end_time(rates: Set[Rate], mw: int) -> float:
+    if len(rates) != 1:
+        raise RuntimeError(
+            f"{len(rates)} rates but only logic for one has been implemented!!")
+    rate = rates[0]
+
     ramp_rate = rate.ramp_down_export if mw < 0 else rate.ramp_down_export
     return mw / float(ramp_rate)

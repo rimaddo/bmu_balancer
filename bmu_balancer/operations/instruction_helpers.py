@@ -28,7 +28,6 @@ def get_prior_instruction(
 
 def get_instruction_cost(
         instruction: Union[Candidate, Instruction],
-        rates: KeyStore[Rate],
 ) -> float:
     """Calculate the cost of delivering the power in an instruction.
 
@@ -39,15 +38,18 @@ def get_instruction_cost(
         # Cost of main delivery
         instruction.asset.running_cost_per_mw_hr * instruction.hours
         # cost to deliver ramp up + down
-        + get_ramp_cost(instruction=instruction, rates=rates)
+        + get_ramp_cost(instruction=instruction)
     )
 
 
-def get_ramp_cost(instruction: Union[Candidate, Instruction], rates: KeyStore[Rate]) -> float:
+def get_ramp_cost(instruction: Union[Candidate, Instruction]) -> float:
     """This is just a vary hacky first step to get something running way to do this,
     will calculate exactly in the future and with multiple rates."""
 
-    rate = rates.get_one_or_none(asset=instruction.asset)
+    if len(instruction.asset.rates) != 1:
+        raise RuntimeError(f"{instruction.asset} has {len(instruction.asset.rates)} but only logic for one has been implemented!!")
+    rate = instruction.asset.rates[0]
+
     if rate is None:
         raise RuntimeError(f"Missing rate for asset {instruction.asset}")
 

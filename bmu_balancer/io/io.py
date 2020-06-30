@@ -2,12 +2,14 @@ import json
 from datetime import date, datetime
 from typing import Dict
 
+from marshmallow import EXCLUDE
+
 from bmu_balancer.io.input_schemas import (
     AssetSchema,
     BMUSchema,
     InputDataSchema,
     InstructionSchema,
-    RateSchema, StateSchema,
+    StateSchema,
 )
 from bmu_balancer.io.output_schemas import SolutionSchema
 from bmu_balancer.models import InputData
@@ -25,7 +27,6 @@ def load_input_data(filepath: str) -> InputData:
     context = {}
     for name, schema in {
         'assets': AssetSchema,
-        'rates': RateSchema,
         'states': StateSchema,
         'bmus': BMUSchema,
         'instructions': InstructionSchema
@@ -33,7 +34,7 @@ def load_input_data(filepath: str) -> InputData:
         items = schema(context=context).load(data_dict[name], many=True)
         context.update({name: {item.id: item for item in items}})
 
-    return InputDataSchema(context=context).load(data_dict)
+    return InputDataSchema(context=context, unknown=EXCLUDE).load(data_dict)
 
 
 def dump_solution(filepath: str, solution: Solution) -> None:

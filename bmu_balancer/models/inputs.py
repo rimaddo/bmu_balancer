@@ -1,11 +1,22 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import Collection, Optional, Tuple
 
 
 @dataclass(frozen=True)
 class Parameters:
     execution_time: datetime
+
+
+@dataclass(frozen=True)
+class Rate:
+    id: int
+    ramp_up_import: float
+    ramp_up_export: float
+    ramp_down_import: float
+    ramp_down_export: float
+    min_mw: int
+    max_mw: Optional[int]
 
 
 @dataclass(frozen=True)
@@ -18,6 +29,8 @@ class Asset:
     # Costs
     running_cost_per_mw_hr: float
     min_required_profit: float
+    # Ramps
+    rates: Collection[Rate]
     # Constraints
     max_import_mw_hr: float
     max_export_mw_hr: float
@@ -31,18 +44,6 @@ class Asset:
 
     def __repr__(self) -> str:
         return f"Asset({self.name or self.id})"
-
-
-@dataclass(frozen=True)
-class Rate:
-    id: int
-    asset: Asset
-    ramp_up_import: float
-    ramp_up_export: float
-    ramp_down_import: float
-    ramp_down_export: float
-    min_mw: int
-    max_mw: Optional[int]
 
 
 @dataclass(frozen=True)
@@ -75,6 +76,7 @@ class BOA:
     price_mw_hr: float
     mw: int
     bmu: BMU
+    rates: Collection[Rate]
 
     @property
     def assets(self) -> Tuple[Asset]:

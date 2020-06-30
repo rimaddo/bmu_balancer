@@ -1,7 +1,7 @@
 import logging
 import sys
 from time import time
-from typing import List
+from typing import Collection
 
 from pulp import LpMaximize, LpProblem, LpStatus
 
@@ -9,9 +9,8 @@ from bmu_balancer.engine.constraints import add_constraints
 from bmu_balancer.engine.objective import set_objective
 from bmu_balancer.engine.solution import get_solution
 from bmu_balancer.engine.variables import create_variables
-from bmu_balancer.models import BOA, Rate
+from bmu_balancer.models import BOA
 from bmu_balancer.models.engine import Candidate, Solution
-from bmu_balancer.operations.key_store import KeyStore
 
 log = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -19,8 +18,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 def run_engine(
         boa: BOA,
-        rates: KeyStore[Rate],
-        candidates: List[Candidate],
+        candidates: Collection[Candidate],
 ) -> Solution:
     start = time()
 
@@ -34,7 +32,6 @@ def run_engine(
         model=model,
         variables=variables,
         boa=boa,
-        rates=rates,
     )
     add_constraints(
         model=model,
