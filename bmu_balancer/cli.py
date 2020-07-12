@@ -36,7 +36,6 @@ def cli(log: str = logging.INFO):
 
 
 load_file = click.argument('input_file', type=click.Path(),)
-write_output = click.argument('output_file', type=click.Path(),)
 
 
 @cli.command(
@@ -49,3 +48,19 @@ write_output = click.argument('output_file', type=click.Path(),)
 @click.option('--visualise', default=True, type=click.BOOL)
 def solve(input_file: IO, output_file: IO, visualise: bool) -> None:
     run(input_filepath=input_file, output_filepath=output_file, visualise=visualise)
+
+
+@cli.command(help='Run a solve and profile time to do so of called functions')
+@load_file
+@click.option('--num-solves', default=1, type=int)
+def solve_and_profile(input_file: IO, num_solves: int) -> None:
+    pr = cProfile.Profile()
+    pr.enable()
+
+    for i in range(num_solves):
+        run(input_filepath=input_file, output_filepath=None, visualise=False)
+
+    pr.disable()
+    sortby = 'cumulative'
+    ps = pstats.Stats(pr)
+    ps.strip_dirs().sort_stats(sortby).print_stats()

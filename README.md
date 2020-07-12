@@ -13,6 +13,10 @@ There are some cli options;
 - `--output_file <path to file>` will save the solution
 - `--visualise <True/False>` will switch the graphing on / off
 
+There are also a number of run options beyond a simple `solve`, to view a list of commands
+and their descriptions execute `bmu_balancer` only.
+
+
 ## To Test
 1. Create a virtualenv with python 3.8
 2. Install requirements `pip install -r requirements_test.txt`
