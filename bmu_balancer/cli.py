@@ -1,13 +1,11 @@
-import cProfile
 import logging
-import pstats
 import sys
 from typing import IO
 
 import click
 import colorlog
 
-from bmu_balancer.run import run
+from bmu_balancer.run import run, run_all_levels
 
 colorlog.colorlog.default_log_colors = {
     'DEBUG': 'green',
@@ -49,3 +47,15 @@ write_output = click.argument('output_file', type=click.Path(),)
 @click.option('--visualise', default=True, type=click.BOOL)
 def solve(input_file: IO, output_file: IO, visualise: bool) -> None:
     run(input_filepath=input_file, output_filepath=output_file, visualise=visualise)
+
+
+@cli.command(
+    help='Run a full solve from json. Optional args, '
+         '--output-folder <OUTPUT_FOLDER> to save all solutions, '
+         '--visualise boolean to turn off graphing.'
+)
+@load_file
+@click.option('--output-folder', default=None, type=click.Path(exists=False))
+@click.option('--visualise', default=True, type=click.BOOL)
+def solve_all_levels(input_file: IO, output_folder: IO, visualise: bool) -> None:
+    run_all_levels(input_filepath=input_file, output_folder=output_folder, visualise=visualise)

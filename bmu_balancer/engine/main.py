@@ -10,7 +10,7 @@ from bmu_balancer.engine.objective import set_objective
 from bmu_balancer.engine.solution import get_solution
 from bmu_balancer.engine.variables import create_variables
 from bmu_balancer.models import BOA
-from bmu_balancer.models.engine import Candidate, Solution
+from bmu_balancer.models.engine import Assignment, Candidate, Solution
 
 log = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -18,7 +18,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 def run_engine(
         boa: BOA,
-        candidates: Collection[Candidate],
+        assignments: Collection[Assignment],
 ) -> Solution:
     start = time()
 
@@ -26,7 +26,7 @@ def run_engine(
     model = LpProblem("BMU-Balancer", LpMaximize)
 
     variables = create_variables(
-        candidates=candidates,
+        assignments=assignments,
     )
     set_objective(
         model=model,

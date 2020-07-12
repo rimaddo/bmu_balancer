@@ -2,28 +2,28 @@ from typing import Collection, Dict
 
 from pulp import LpBinary, LpVariable
 
-from bmu_balancer.models.engine import Candidate, Variables
+from bmu_balancer.models.engine import Assignment, Variables
 
 
 def create_variables(
-        candidates: Collection[Candidate],
+        assignments: Collection[Assignment],
 ) -> Variables:
     """Create a set of problem variables."""
     return Variables(
-        candidates=get_candidate_variables(
-            candidates=candidates,
+        assignments=get_candidate_variables(
+            assignments=assignments,
         )
     )
 
 
 def get_candidate_variables(
-        candidates: Collection[Candidate],
-) -> Dict[Candidate, LpVariable]:
+        assignments: Collection[Assignment],
+) -> Dict[Assignment, LpVariable]:
     """Create variables for the assignment of a mw value to an asset."""
     return {
-        ic: LpVariable(
+        assignment: LpVariable(
             name=f"var__candidate({n})",
             cat=LpBinary,
         )
-        for n, ic in enumerate(candidates)
+        for n, assignment in enumerate(assignments)
     }

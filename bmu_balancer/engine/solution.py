@@ -15,15 +15,16 @@ def get_solution(model: LpProblem, variables: Variables) -> Solution:
         objective = value(model.objective)
 
         instructions = []
-        for candidate, var in variables.candidates.items():
+        for assignment, var in variables.assignments.items():
             if var.varValue > 0:
-                instructions.append(Instruction(
-                    asset=candidate.asset,
-                    boa=candidate.boa,
-                    mw=candidate.mw,
-                    start=candidate.start,
-                    end=candidate.end,
-                ))
+                for candidate in assignment.candidates:
+                    instructions.append(Instruction(
+                        asset=candidate.asset,
+                        boa=candidate.boa,
+                        mw=candidate.mw,
+                        start=candidate.start,
+                        end=candidate.end,
+                    ))
 
         log.info(f"Got {len(instructions)} instructions choices.")
 

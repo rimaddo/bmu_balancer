@@ -1,18 +1,18 @@
-from collections import Collection
 from datetime import timedelta
-from typing import Set
+from typing import Collection, Dict
 
 import matplotlib.pyplot as plt
 from matplotlib.dates import num2date
 
-from bmu_balancer.models import Asset, BOA, Instruction, Rate
+from bmu_balancer.models import Asset, BOA, Instruction
 from bmu_balancer.models.engine import Candidate
 from bmu_balancer.operations.key_store import KeyStore
+from bmu_balancer.operations.ramp_helpers import get_ramp_down_end_time, get_ramp_up_start_time
 
 
 def plot(
         boa: BOA,
-        candidates: KeyStore[Candidate],
+        candidates: Dict[Asset, Candidate],
         instructions: KeyStore[Instruction],
 ) -> None:
 
@@ -20,7 +20,7 @@ def plot(
 
     for n, asset in enumerate(boa.assets):
         # Plot each asset candidate and the eventual choice against BOA
-        plot_candidates(ax=axs[n], asset=asset, candidates=candidates)
+        plot_candidates(ax=axs[n], asset=asset, candidates=candidates[asset])
         plot_boa(ax=axs[n], boa=boa)
         plot_solution_instruction(ax=axs[n], asset=asset, instructions=instructions)
         graph_settings(ax=axs[n], title=asset.name)
@@ -34,9 +34,9 @@ def plot(
     plt.show()
 
 
-def plot_candidates(ax, asset: Asset, candidates: KeyStore[Candidate]) -> None:
+def plot_candidates(ax, asset: Asset, candidates: Collection[Candidate]) -> None:
     x, y = [], []
-    for candidate in candidates.get(asset=asset):
+    for candidate in candidates:
         if candidate.mw != 0:
             # Start ramp-up
             ramp_up_start = get_ramp_up_start_time(rates=asset.rates, mw=candidate.mw)
@@ -60,14 +60,12 @@ def plot_candidates(ax, asset: Asset, candidates: KeyStore[Candidate]) -> None:
 
 
 def plot_boa(ax, boa: BOA) -> None:
-    ramp_up_start = get_ramp_up_start_time(rates=boa.rates, mw=boa.mw)
-    ramp_down_end = get_ramp_down_end_time(rates=boa.rates, mw=boa.mw)
     ax.plot(
         [
-            boa.start - timedelta(hours=ramp_up_start),
+            boa.ramp_start,
             boa.start,
             boa.end,
-            boa.end + timedelta(hours=ramp_down_end),
+            boa.ramp_end,
         ],
         [0, boa.mw, boa.mw, 0],
         color='orange',
@@ -139,23 +137,3 @@ def graph_settings(ax, title: str) -> None:
         for dt in num2date(ax.get_xticks())
     ]
     ax.set_xticklabels(ticks, rotation=90)
-
-
-def get_ramp_up_start_time(rates: Set[Rate], mw: int) -> float:
-    if len(rates) != 1:
-        raise RuntimeError(
-            f"{len(rates)} rates but only logic for one has been implemented!!")
-    rate = rates[0]
-
-    ramp_rate = rate.ramp_up_import if mw < 0 else rate.ramp_up_export
-    return mw / float(ramp_rate)
-
-
-def get_ramp_down_end_time(rates: Set[Rate], mw: int) -> float:
-    if len(rates) != 1:
-        raise RuntimeError(
-            f"{len(rates)} rates but only logic for one has been implemented!!")
-    rate = rates[0]
-
-    ramp_rate = rate.ramp_down_export if mw < 0 else rate.ramp_down_export
-    return mw / float(ramp_rate)

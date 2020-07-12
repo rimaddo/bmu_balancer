@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Collection, Dict, List, Optional
 
 from pulp import LpVariable
 
@@ -35,12 +35,17 @@ class Candidate:
 
 
 @dataclass(frozen=True)
+class Assignment:
+    candidates: Collection[Candidate]
+
+
+@dataclass(frozen=True)
 class Variables:
-    candidates: Dict[Candidate, LpVariable]
+    assignments: Dict[Assignment, LpVariable]
 
     @property
     def count(self) -> int:
-        return len(self.candidates)
+        return len(self.assignments)
 
 
 @dataclass(frozen=True)

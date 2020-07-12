@@ -46,7 +46,6 @@ def get_ramp_cost(instruction: Union[Candidate, Instruction]) -> float:
     """This is just a vary hacky first step to get something running way to do this,
     will calculate exactly in the future and with multiple rates."""
 
-    print("asset.rates", instruction.asset.rates)
     if len(instruction.asset.rates) != 1:
         raise RuntimeError(f"{instruction.asset} has {len(instruction.asset.rates)} but only logic for one has been implemented!!")
     rate = instruction.asset.rates[0]

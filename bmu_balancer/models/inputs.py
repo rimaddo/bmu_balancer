@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Collection, Optional, Tuple
+
+from bmu_balancer.operations.ramp_helpers import get_ramp_down_end_time, get_ramp_up_start_time
 
 
 @dataclass(frozen=True)
@@ -85,6 +87,16 @@ class BOA:
     @property
     def is_import(self) -> bool:
         return self.mw < 0
+
+    @property
+    def ramp_start(self) -> datetime:
+        ramp_start = get_ramp_up_start_time(rates=self.rates, mw=self.mw)
+        return self.start - timedelta(hours=ramp_start)
+
+    @property
+    def ramp_end(self) -> datetime:
+        ramp_end = get_ramp_down_end_time(rates=self.rates, mw=self.mw)
+        return self.end + timedelta(hours=ramp_end)
 
     def __repr__(self) -> str:
         return f"BOA(start: {self.start.isoformat()}, end: {self.end.isoformat()}, mw: {self.mw}, price: {self.price_mw_hr})"
